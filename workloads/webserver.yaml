@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: webserver
+  
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webserver
+  namespace: webserver
+  labels:
+    app: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      volumes:
+        - name: index
+          configMap:
+            name: web-cm
+            items:
+              - key: index.html
+                path: index.html
+      containers:
+      - image: httpd:latest
+        imagePullPolicy: Always
+        name: webserver
+        volumeMounts:
+          - name: index
+            mountPath: /var/www/html/
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 50Mi
+          requests:
+            cpu: 40m
+            memory: 20Mi
+      dnsPolicy: ClusterFirst
+
+---
+
+apiVersion: v1
+data:
+#This is your index page, update accordingly
+  index.html: "<html>\n\t<body background=\"it.jpg\">\n\t\t<h1 style=\"color:white\">Sorry,
+    the site is not ready yet</h1>\n\t\t<p><a href=\"https://imgur.com\">Click here
+    to pass the time!</a></p>\n\t</body>\n</html>\n"
+kind: ConfigMap
+metadata:
+  name: web-cm
+  namespace: webserver
+  labels:
+    app: web
+
+---   
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: neg-service
+  namespace: webserver
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: web
+  type: NodePort
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: neg-ing
+  namespace: webserver
+spec:
+  backend:
+    serviceName: neg-service
+    servicePort: 80
