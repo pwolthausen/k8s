@@ -1,0 +1,87 @@
+##Creates an nginx workloads in its own namespace, exposed through an internal loadbalancer and an nginx-ingress.
+##Internal Loadbalancerhas source ranges defined to retrict access.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx
+  
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-internal
+  namespace: nginx
+  labels:
+    app: nginx
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+  type: LoadBalancer
+  #loadBalancerIP: 35.227.197.16  ##Only used if previously assigned IP is required
+  loadBalancerSourceRanges: #restricts access to the service to these IPs
+    - 192.168.1.0/24
+    - 192.168.0.0/24
+    
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+  type: NodePort
+  
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx
+  namespace: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"  
+spec:
+  backend:
+    serviceName: nginx
+    servicePort: 80
