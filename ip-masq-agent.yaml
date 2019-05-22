@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ip-masq-agent
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      k8s-app: ip-masq-agent
+  template:
+    metadata:
+      labels:
+        k8s-app: ip-masq-agent
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+    spec:
+      priorityClassName: system-node-critical
+      hostNetwork: true
+      containers:
+      - name: ip-masq-agent
+        image: k8s.gcr.io/ip-masq-agent-amd64:v2.4.1
+        args:
+          - --masq-chain=IP-MASQ
+          - --nomasq-all-reserved-ranges
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+          - name: config
+            mountPath: /etc/config
+      volumes:
+        - name: config
+          configMap:
+            # Note this ConfigMap must be created in the same namespace as the daemon pods - this spec uses kube-system
+            name: ip-masq-agent
+            optional: true
+            items:
+              # The daemon looks for its config in a YAML file at /etc/config/ip-masq-agent
+              - key: config
+                path: ip-masq-agent
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
