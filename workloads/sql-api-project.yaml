@@ -17,7 +17,7 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: mysql
+      app: mysql-api
       project: backend
   strategy: ## Setting a rolling update strategy is vital to ensure smooth versioning
     rollingUpdate:
@@ -26,7 +26,7 @@ spec:
   template:
     metadata:
       labels:
-        app: mysql
+        app: mysql-api
         project: backend
     spec:
       affinity:
@@ -37,7 +37,7 @@ spec:
           weight: 50
             podAffinityTerm:
               labelSelector:
-                app: mysql
+                app: mysql-api
                 project: backend
               topologyKey: kubernetes.io/hostname
     securityContext: 
@@ -46,6 +46,19 @@ spec:
     containers:
     - name: mysql
       image: mysql:latest
+      env:	
+      - name: MYSQL_DATABASE		
+        value: titanic
+      - name: MYSQL_RANDOM_ROOT_PASSWORD	
+        value: yes	
+      - name: MYSQL_USER	
+        secretKeyRef: 	
+          name: db-secrets	
+          key: user	
+      - name: MYSQL_PASSWORD	
+        secretKeyRef: 	
+          name: db-secrets	
+          key: password
       ports:
       - containerPort: 3306
         name: mysql-port
@@ -59,10 +72,13 @@ spec:
           cpu:
           memory:
       readinesProbe:
+      
       livenessProbe:
+      
       volumeMounts:
+      ##DB is strored here
       - name: db-storage
-        mountPath: /var/lib/mysql ##Need to verify this
+        mountPath: /var/lib/mysql
   ###Use openEBS CAS for storage    
     volumes:
     - name: db-storage
@@ -91,7 +107,50 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: mysql
+      app: mysql-api
       project: backend      
   ports:
   - port: 3306
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mysql-api
+      project: frontend
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-api
+        project: frontend
+        spec:
+      affinity:
+        ##set anti affinity to avoid having all the pods from this workload on the same node in case of node failure
+        podAntiAffinity: 
+          ## Only using prefered to avoid scheduling complications, the rule is not required
+          preferredDuringSchedulingIgnoredDuringExecution: 
+          weight: 50
+            podAffinityTerm:
+              labelSelector:
+                app: mysql-api
+                project: frontend
+              topologyKey: kubernetes.io/hostname
+    securityContext: 
+      ##Ensure the pod does not have root access to the host
+      runAsNonRoot: FALSE
+    containers:
+    - name: my-api
+      image: [determine repo] ##my containerized API
+      resources:
+        requests:
+        limits:
