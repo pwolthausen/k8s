@@ -46,20 +46,6 @@ spec:
     containers:
     - name: mysql
       image: mysql:latest
-      env:
-      - name: MYSQL_DATABASE
- ## NEED TO DETERMINE THE TABLE NAME ONCE I KNOW WHAT THE APP IS DOING##
-        value: 
-      - name: MYSQL_RANDOM_ROOT_PASSWORD
-        value: yes
-      - name: MYSQL_USER
-        secretKeyRef: 
-          name: db-secrets
-          key: user
-      - name: MYSQL_PASSWORD
-        secretKeyRef: 
-          name: db-secrets
-          key: password
       ports:
       - containerPort: 3306
         name: mysql-port
@@ -76,7 +62,7 @@ spec:
       livenessProbe:
       volumeMounts:
       - name: db-storage
-        mountPath:
+        mountPath: /var/lib/mysql ##Need to verify this
   ###Use openEBS CAS for storage    
     volumes:
     - name: db-storage
