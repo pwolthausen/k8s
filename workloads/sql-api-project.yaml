@@ -45,7 +45,7 @@ spec:
       runAsNonRoot: FALSE
     containers:
     - name: mysql
-      image: mysql:latest
+      image: mysql:8.0
       env:	
       - name: MYSQL_DATABASE		
         value: titanic
