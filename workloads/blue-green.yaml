@@ -43,9 +43,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-        command: [ "sh", "-c"]
-        args: 
-        - echo Welcome to $MY_POD_NAME >> /usr/share/nginx/html/index.html
 
 ---
 
@@ -106,9 +103,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-        command: [ "sh", "-c"]
-        args: 
-        - echo Welcome to $MY_POD_NAME >> /usr/share/nginx/html/index.html
         
 ---
 
