@@ -1,5 +1,6 @@
 ##Creates an nginx workloads in its own namespace, exposed through an internal loadbalancer and an nginx-ingress.
 ##Internal Loadbalancerhas source ranges defined to retrict access.
+##Install nginx-ingress-controller at https://kubernetes.github.io/ingress-nginx/deploy
 
 apiVersion: v1
 kind: Namespace
