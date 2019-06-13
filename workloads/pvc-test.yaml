@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pvc-test
+spec:
+  selector:
+    matchLabels:
+      app: pvc
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pvc
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+        
