@@ -20,4 +20,18 @@ spec:
         volumeMounts:
         - name: www
           mountPath: /usr/share/nginx/html
-        
+      volumes:
+        - name: www
+          persistentVolumeClaim:
+            claimName: test-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi 
