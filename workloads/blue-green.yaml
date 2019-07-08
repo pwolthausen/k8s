@@ -14,20 +14,10 @@ spec:
         app: backend
         color: blue 
     spec:
-      volumes:
-        - name: blue-index
-          configMap:
-            name: blue-index
-            items:
-              - key: index.html
-                path: index.html
       containers:
       - name: api
         image: nginx:latest
         imagePullPolicy: Always
-        volumeMounts:
-          - name: blue-index
-            mountPath: /usr/share/nginx/html/
         ports:
           - containerPort: 80
         livenessProbe:
@@ -43,18 +33,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-
----
-
-apiVersion: v1
-data:
-  index.html: "I am blue! "
-kind: ConfigMap
-metadata:
-  name: blue-index
-  labels:
-    color: blue
-    app: backend
 
 ---
 
@@ -74,20 +52,10 @@ spec:
         app: backend
         color: green 
     spec:
-      volumes:
-        - name: green-index
-          configMap:
-            name: green-index
-            items:
-              - key: index.html
-                path: index.html
       containers:
       - name: api
         image: nginx:latest
         imagePullPolicy: Always
-        volumeMounts:
-          - name: green-index
-            mountPath: /usr/share/nginx/html/
         ports:
           - containerPort: 80
         livenessProbe:
@@ -103,19 +71,9 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-        
----
-
-apiVersion: v1
-data:
-  index.html: "I am green! "
-kind: ConfigMap
-metadata:
-  name: green-index
-  labels:
-    color: green
-    app: backend
-    
+        command:
+        - /bin/bash
+        - echo 
 ---
 
 apiVersion: v1
