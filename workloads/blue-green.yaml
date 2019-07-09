@@ -15,7 +15,7 @@ spec:
         color: blue 
     spec:
       containers:
-      - name: api
+      - name: apikubectl c
         image: nginx:latest
         imagePullPolicy: Always
         ports:
@@ -33,6 +33,14 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+        command:
+          - touch /usr/share/nginx/html/index.html
+          - echo You have reached pod $MY_POD_NAME from the blue deployment > /usr/share/nginx/html/index.html
+          - echo This pod lives on node $MY_NODE_NAME >> /usr/share/nginx/html/index.html
 
 ---
 
