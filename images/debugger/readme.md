@@ -9,16 +9,27 @@ To connect, run 'kubectl exec -it debugger-0 -- /bin/bash'
 ## Included Packages
 
 bash
+
 namp
+
 apache2-utils
+
 bind-tools
+
 tcpdump
+
 mtr
+
 busybox-extras (telnet)
+
 iperf3
+
 strace
+
 arp-scan
+
 netcat-openbsd (netcat)
+
 tree
 
 New packages can be installed using apk
