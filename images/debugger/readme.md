@@ -18,6 +18,8 @@ To connect, run 'kubectl exec -it debugger-0 -- /bin/bash'
 
 bash
 
+curl
+
 namp
 
 apache2-utils
