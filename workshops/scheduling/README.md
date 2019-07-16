@@ -3,7 +3,7 @@
 1. Resource requests
 2. [Taints and Tolerations](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
 3. [Node selector](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector)
-4. [Pod affinity/anti-affinity}(https://docs.openshift.com/container-platform/3.6/admin_guide/scheduling/pod_affinity.html)
+4. [Pod affinity/anti-affinity](https://docs.openshift.com/container-platform/3.6/admin_guide/scheduling/pod_affinity.html)
 
 
 ## Resource requests
