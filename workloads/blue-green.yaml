@@ -37,17 +37,19 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-        command:
-          - touch /usr/share/nginx/html/index.html
-          - echo You have reached pod $MY_POD_NAME from the blue deployment > /usr/share/nginx/html/index.html
-          - echo This pod lives on node $MY_NODE_NAME >> /usr/share/nginx/html/index.html
-          
+
 ---
 apiVersion: v1
+data:
+#This is your index page, update accordingly
+  index.html: |
+    You have reached pod $MY_POD_NAME from the blue deployment.
+    This pod lives on node $MY_NODE_NAME.
 kind: ConfigMap
 metadata:
   name: blue
-
+  labels:
+    color: blue
 ---
 
 apiVersion: extensions/v1beta1
@@ -88,6 +90,19 @@ spec:
         command:
         - /bin/bash
         - echo 
+---
+apiVersion: v1
+data:
+#This is your index page, update accordingly
+  index.html: |
+    You have reached pod $MY_POD_NAME from the green deployment.
+    This pod lives on node $MY_NODE_NAME.
+kind: ConfigMap
+metadata:
+  name: green
+  labels:
+    color: green
+
 ---
 
 apiVersion: v1
