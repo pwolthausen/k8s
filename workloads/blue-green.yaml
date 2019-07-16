@@ -41,6 +41,12 @@ spec:
           - touch /usr/share/nginx/html/index.html
           - echo You have reached pod $MY_POD_NAME from the blue deployment > /usr/share/nginx/html/index.html
           - echo This pod lives on node $MY_NODE_NAME >> /usr/share/nginx/html/index.html
+          
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blue
 
 ---
 
