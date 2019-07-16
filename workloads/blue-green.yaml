@@ -14,12 +14,19 @@ spec:
         app: backend
         color: blue 
     spec:
+      volumes:
+      - configMap:
+          name: blue-cm
+        name: blue-cm
       containers:
-      - name: apikubectl c
+      - name: blue
         image: nginx:latest
         imagePullPolicy: Always
         ports:
           - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/
+          name: blue-cm
         livenessProbe:
           httpGet:
             path: /
@@ -37,7 +44,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-
 ---
 apiVersion: v1
 data:
@@ -47,7 +53,7 @@ data:
     This pod lives on node $MY_NODE_NAME.
 kind: ConfigMap
 metadata:
-  name: blue
+  name: blue-cm
   labels:
     color: blue
 ---
@@ -68,12 +74,19 @@ spec:
         app: backend
         color: green 
     spec:
+      volumes:
+      - configMap:
+          name: green-cm
+        name: green-cm
       containers:
-      - name: api
+      - name: green
         image: nginx:latest
         imagePullPolicy: Always
         ports:
           - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/
+          name: green-cm
         livenessProbe:
           httpGet:
             path: /
@@ -87,9 +100,10 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-        command:
-        - /bin/bash
-        - echo 
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
 ---
 apiVersion: v1
 data:
@@ -99,7 +113,7 @@ data:
     This pod lives on node $MY_NODE_NAME.
 kind: ConfigMap
 metadata:
-  name: green
+  name: green-cm
   labels:
     color: green
 
