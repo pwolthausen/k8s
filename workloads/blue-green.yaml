@@ -123,6 +123,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
+  labels:
+    app: backend
 spec:
   selector:
     app: backend
@@ -140,6 +142,8 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: backend-ingress
+  labels:
+    app: backend
 spec:
   backend:
     serviceName: backend-service
