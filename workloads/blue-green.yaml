@@ -130,21 +130,7 @@ spec:
     app: backend
     ##Change the "color" value to blue or green to establish which version you want exposed
     color: blue
-  type: NodePort
   ports:
     - port: 80
       protocol: TCP
       targetPort: 80
-      
----
-
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: backend-ingress
-  labels:
-    app: backend
-spec:
-  backend:
-    serviceName: backend-service
-    servicePort: 80
