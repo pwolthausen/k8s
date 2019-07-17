@@ -8,7 +8,7 @@
 
 ## Resource requests
 
-K8s leverages resource requests for many different aspects, including scheduling, auto-scaling and pod preemption. It is best practice to have these configured for all your pods([see est practices video](https://www.youtube.com/watch?v=xjpHggHKm78)). Deciding on which value to set for the request depends entirely on the container being deployed. See [this](https://opensource.com/article/18/12/optimizing-kubernetes-resource-allocation-production) blog about determineing resource requests and limits for your containers.
+K8s leverages resource requests for many different aspects, including scheduling, auto-scaling and pod preemption. It is best practice to have these configured for all your pods([see best practices video](https://www.youtube.com/watch?v=xjpHggHKm78)). Deciding on which value to set for the request depends entirely on the container being deployed. See [this](https://opensource.com/article/18/12/optimizing-kubernetes-resource-allocation-production) blog about determineing resource requests and limits for your containers.
 
 1. Given deployment, determine appropriate resource requests
 
