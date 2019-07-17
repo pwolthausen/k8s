@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:
+  namespace:  #Defaults to the 'default' namespace if excluded
+  labels:
+    ##key: value pairs that make up the labels for the resource. Not a required field
+spec:
+  replicas: 1 #set number of pods to replicate
+  selector:
+    matchLabels:
+      #Must be the same labels as the ones set in the pod spec
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+    spec:
+      containers:
+      - name: 
+        image: 
+        ports:
+        - containerPort: 
