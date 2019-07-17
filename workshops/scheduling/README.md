@@ -12,8 +12,8 @@ K8s leverages resource requests for many different aspects, including scheduling
 
 1. Given deployment, determine appropriate resource requests
 
-As k8s cluster admin, it is good practice to enforce resource requests per namespace in case users forget to set them.
+As k8s cluster admin, it is good practice to [enforce resource requests per namespace](https://kubernetes.io/docs/concepts/policy/limit-range/) in case users forget to set them.
 
-2. Set resource request [default values at the namespace level](https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/)
+2. Set resource request default values at the namespace level
 
 3. Set resource request limitations per namespace
