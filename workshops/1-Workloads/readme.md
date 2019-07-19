@@ -34,9 +34,9 @@ To keep things simple, let's create the ConfigMap using [literal values](https:/
 To use the two values we just set in the ConfigMap, we will modify the two Environment Variables and replace the clear text we wrote with a reference to the configmap data
 We will replace the `value` field with a `valueFrom` field. This should look something like this:
 
-'valueFrom:           
-   configMapKeyRef:
-     name: api-variables
+`valueFrom:  
+   configMapKeyRef:  
+     name: api-variables  
      key: database`
 
 You can learn more about this field using `kubectl explain` or using the [API reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#container-v1-core)
