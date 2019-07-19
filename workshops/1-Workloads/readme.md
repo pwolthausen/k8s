@@ -41,4 +41,4 @@ We will replace the `value` field with a `valueFrom` field. This should look som
 
 You can learn more about this field using `kubectl explain` or using the [API reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#container-v1-core)
 
-### 3. Secrets
+### 2. Secrets

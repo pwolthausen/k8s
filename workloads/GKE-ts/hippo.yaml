@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: webservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: nginx
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webserver
+  namespace: webservice
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webserver
+  template:
+    metadata:
+      labels:
+        app: webserver
+    spec:
+      containers:
+      - name: webserver
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webserver
+  namespace: webservice
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: webserver
+  loadBalancerSourceRanges:
+  - 192.168.0.0/16
+  - 35.232.228.81/32
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: promsd
+  labels:
+    app: prometheus
+spec:
+  replicas: 2
+  selector:
+    app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus-to-sd
+        image: quay.io/prometheus/prometheus:v2.4.3

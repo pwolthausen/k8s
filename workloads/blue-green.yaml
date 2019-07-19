@@ -23,7 +23,7 @@ spec:
         image: nginx:latest
         imagePullPolicy: Always
         ports:
-          - containerPort: 80
+        - containerPort: 80
         volumeMounts:
         - mountPath: /usr/share/nginx/html/
           name: blue-cm
@@ -36,18 +36,17 @@ spec:
             path: /
             port: 80
         env:
-          - name: MY_POD_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-          - name: MY_NODE_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
 ---
 apiVersion: v1
 data:
-#This is your index page, update accordingly
   index.html: |
     You have reached pod $MY_POD_NAME from the blue deployment.
     This pod lives on node $MY_NODE_NAME.
@@ -83,7 +82,7 @@ spec:
         image: nginx:latest
         imagePullPolicy: Always
         ports:
-          - containerPort: 80
+        - containerPort: 80
         volumeMounts:
         - mountPath: /usr/share/nginx/html/
           name: green-cm
@@ -96,18 +95,17 @@ spec:
             path: /
             port: 80
         env:
-          - name: MY_POD_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-          - name: MY_NODE_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
 ---
 apiVersion: v1
 data:
-#This is your index page, update accordingly
   index.html: |
     You have reached pod $MY_POD_NAME from the green deployment.
     This pod lives on node $MY_NODE_NAME.
