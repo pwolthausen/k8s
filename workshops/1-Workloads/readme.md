@@ -22,6 +22,12 @@ Looking at the description on Docker Hub, we can see a number of Environment Var
 
 To do this in the deployment.yaml, we need to [add the environment variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/#using-environment-variables-inside-of-your-config) to an array as part of the container object
 
+<pre>
+env:
+- name:
+  value:
+</pre>
+
 ## Adding volumes
 
 ### 1. ConfigMap
