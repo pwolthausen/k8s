@@ -8,7 +8,9 @@
 
 ## Using a Deployment
 
-Using the basic deployment template (deployment.yaml), fill in the blank fields to deploy a basic database. To keep things simple, let's use the image for mysql from Docker Hub: ["mysql:5.7"](https://hub.docker.com/_/mysql).
+Using the basic deployment template (deployment.yaml), fill in the blank fields to deploy a basic database. To keep things simple, let's use the image for mysql from Docker Hub: ["mysql:5.7"](https://hub.docker.com/_/mysql).  
+Once the yaml is ready, save your changes and create the deployment using:
+> kubectl apply -f deployment.yaml
 
 ## Setting Variables for the container
 
