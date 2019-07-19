@@ -35,6 +35,7 @@ To use the two values we just set in the ConfigMap, we will modify the two Envir
 We will replace the `value` field with a `valueFrom` field. This should look something like this:
 
 <pre>
+...
 valueFrom:  
   configMapKeyRef:  
     name: api-variables  
