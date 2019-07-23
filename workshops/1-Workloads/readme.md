@@ -8,7 +8,15 @@
 
 ## Using a Deployment
 
-Using the basic deployment template (deployment.yaml), fill in the blank fields to deploy a basic database. To keep things simple, let's use the image for mysql from Docker Hub: ["mysql:5.7"](https://hub.docker.com/_/mysql).
+Using the basic deployment template (deployment.yaml), fill in the blank fields to deploy a basic database. To keep things simple, let's use the image for mysql from Docker Hub: ["mysql:5.7"](https://hub.docker.com/_/mysql).  
+Once the yaml is ready, save your changes and create the deployment using:
+> kubectl apply -f deployment.yaml  
+
+Changes in future steps can be applied easily in one of 2 ways:
+1. Edit the deployment.yaml file locally. Once changes are complete, run the above command again to update the k8s resource
+2. Edit the deployment resource directly through k8s using `kubectl edit deploy [deployment_name]`. Note that this uses vi to edit the resource directly.  
+
+You can also use the `kubeclt patch` command to change specific fields in the resource without having to open an editor.
 
 ## Setting Variables for the container
 
@@ -22,6 +30,13 @@ Looking at the description on Docker Hub, we can see a number of Environment Var
 
 To do this in the deployment.yaml, we need to [add the environment variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/#using-environment-variables-inside-of-your-config) to an array as part of the container object
 
+<pre>
+containers:
+- env:
+  - name:
+    value:
+</pre>
+
 ## Adding volumes
 
 ### 1. ConfigMap
@@ -34,11 +49,13 @@ To keep things simple, let's create the ConfigMap using [literal values](https:/
 To use the two values we just set in the ConfigMap, we will modify the two Environment Variables and replace the clear text we wrote with a reference to the configmap data
 We will replace the `value` field with a `valueFrom` field. This should look something like this:
 
-`valueFrom:  
-   configMapKeyRef:  
-     name: api-variables  
-     key: database`
-
+<pre>
+...
+valueFrom:  
+  configMapKeyRef:  
+    name: api-variables  
+    key: database
+</pre>
 You can learn more about this field using `kubectl explain` or using the [API reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#container-v1-core)
 
 ### 2. Secrets
