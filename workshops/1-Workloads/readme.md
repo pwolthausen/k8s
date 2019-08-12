@@ -11,7 +11,7 @@
 Using the basic deployment template (deployment.yaml), fill in the blank fields to deploy a basic database. To keep things simple, let's use the image for mysql from Docker Hub: ["mysql:5.7"](https://hub.docker.com/_/mysql).  
 Once the yaml is ready, save your changes and create the deployment using:
 
-'kubectl apply -f deployment.yaml'  
+`kubectl apply -f deployment.yaml`
 
 Changes in future steps can be applied easily in one of 2 ways:
 1. Edit the deployment.yaml file locally. Once changes are complete, run the above command again to update the k8s resource
@@ -19,7 +19,7 @@ Changes in future steps can be applied easily in one of 2 ways:
 
 You can also use the `kubeclt patch` command to change specific fields in the resource without having to open an editor.
 
-####Note
+#### Note
 Whenever the deployment is modified, the update strategy defined will come into play. The readiness Probe is configured to wait 30 seconds before it starts to ensure the update strategy does not roll out too quickly. This should allow you time to watch the rollout strategy in action. 
 
 ## Setting Variables for the container
@@ -49,7 +49,7 @@ containers:
 We might want to use a standard deployment to create multiple database pods that have different variables. Instead of manually updating the deployment each time we want to make a change. Instead, we will [create a ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/) that will contain the MYSQL_DATABASE and MYSQL_USER data.
 To keep things simple, let's create the ConfigMap using [literal values](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#create-configmaps-from-literal-values). Run the following command:
 
-'kubectl create configmap db-variables --from-literal=database=[database_name] --from-literal=db-user=[username]'
+`kubectl create configmap db-variables --from-literal=database=[database_name] --from-literal=db-user=[username]`
 
 Take a look at the resource you just created using `kubectl describe cm db-variables`
 
@@ -77,4 +77,49 @@ Now, update the deployment env fields to use the secrets. This will be very simi
 
 ### 3. Persistent Volumes
 
-We used configMap and secrets to replace variables in the container. It is also possible to have entire files created from either a secret or a configMap. The important part to note is that whatever data we import from the configMap or the secret will be readOnly. 
+We used configMap and secrets to replace variables in the container. It is also possible to have entire files created from either a secret or a configMap. The important part to note is that whatever data we import from the configMap or the secret will be readOnly.
+Your container, however, may required an entire directory of preloaded data or it may need writable disk space. You could use the node's boot disk for this (using hostPath) though this may not be ideal. Instead, we can mount disks to the pod using [Persistent Volumes(PV) and persistent volume claims(PVC)](https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
+
+#### Note
+Some providers will use StorageClass to allow PVs to be provisioned dynamically when you create a PVC. We will get more in depth into storage in a later workshop.	
+
+Start by creating the volume using the provided pvc.yaml. You can create this using the same command you used to create the Deployment
+Next, edit the deployment to indicate the volume to use by adding the `spec.template.spec.volumes` field.
+Finally, mount the volume by adding the `spec.template.spec.containers.volumeMounts` field. Set the `mountPath` to `/var/lib/mysql` so we can use it for the database.
+
+Once your pod is running, you can experience the behavior of a PVC by draining the node where the MySQL pod is scheduled. You'll notice the PVC will change nodes along with the pod and the data will be kept.
+
+## StatefulSets
+
+Statefulsets work very similarly to the deployment we just created with a few differences. We'll explore the differences here.
+Start by creating the basic statefulset provided (stateful.yaml) and take the time to note the naming convention and how it differs from the pod created by the deployment.
+
+Next, we'll highlight the fields specific to StatefulSets that provide new functionality:
+
+1. `spec.podManagementPolicy`: this defines how pods are created and managed within the set, try different values and watch how the controller manages the pods as they are deleted and/or recreated.
+
+2. `spec.serviceName`: this field requires that the service already exist and provides hsotnames for the pods which the cluster DNS can resolve.
+
+3. `spec.volumeClaimTemplates`: Creates a template for PVCs, each new replica will have it's own dynamically provisioned PVC created and attached. the PVCs follow a similar naming convention to the pods. This makes scaling up and down easier since we no longe have the issue of a single PVC assigned in the pod template getting re-used (a problem we see in deployments). Note that this field replaces the `spec.temaplte.spec.volumes` field found in deployments
+
+Try adding these fields to the statefulset and watch how they are implemented.
+[Here is an example](https://kubernetes.io/docs/tasks/run-application/run-replicated-stateful-application/) use case of a StatefulSet in action to create a MySQL master and replicas.
+
+
+## Jobs Vs Deployments
+
+A deployment should create long lasting containers that are built to serve requests. Deployments do not work well with short lived containers such as a script that only needs to run once.
+To demonstrate this limiation with Deployments, creat ethe "job" deployment using the job.yaml
+After a minute or so we should see that all the pods are in creashLoopBackOff. Describing the pod will provide more details. Notice that the last exit code is 0.
+
+Since the nature of this pod is short lived, let's change this over to a job instead. In this case, editing the resource would not work, so let's delete the `job` deployment first.
+Open `job.yaml` and make the following changes to convert it to a job:
+
+1. Change `apiVersion` from v1 to batch/v1
+2. Change `kind` to Job
+3. Remove the `spec.replicas` field
+4. Add the `spec.completions` and `spec.parallelism` fields. These are integers and determine how many times the job should run and how many replicas can run at any time.
+5. OPTIONALY add the `spec.ttlSecondsAfterFinished`. Adding this field will keep a pod around after it has completed it's task, useful for debugging or reviewing container logs
+
+Once you've made these changes, apply the new config and watch as the jobs run.
+If you need these jobs to run on a schedule, you can use the kind [CronJob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
