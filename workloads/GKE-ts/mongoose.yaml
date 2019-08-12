@@ -1,39 +1,80 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: nginx
+  name: mounter
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
-  namespace: nginx
+  name: mounter
+  namespace: mounter
 spec:
   replicas: 3
   selector:
-    matchLables:
-      app: nginx
+    matchLabels:
+      mount: volume
+  template:
+    metadata: 
+      labels:
+        mount: volume
+    spec:
+      containers:
+      - name: volume-required
+        image: httpd
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: mountedVolume
+      volumes:
+      - configMap:
+          name: apache-index
+        name: mountedVolume
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: generic-workload
+  labels:
+    app: generic
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: generic
   template:
     metadata:
       labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx
-        ports:
-        - containerPort: 80
+        app: generic
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 75
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operators: In
+                    values:
+                    - generic
+                topologyKey: kubernetes.io/hostname
+        containers:
+        - name: generic-app
+          image: nginx:alpine
+          resources:
+            requests:
+              cpu: 25m
+              memory: 25Mi
 ---
-apiVersion: v1
-kind: Service
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
 metadata:
-  name: nginx
-  namespace: nginx
-  annotations:
-    cloud.google.com/load-balancer-type: Internal
+  name: restrictive-pdb
 spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
+  maxUnavailable: 0
   selector:
-    app: nginx
+    matchLabels:
+      app: generic

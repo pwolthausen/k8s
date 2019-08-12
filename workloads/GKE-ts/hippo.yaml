@@ -30,6 +30,9 @@ spec:
         image: nginx:alpine
         ports:
         - containerPort: 80
+        readinessProbe:
+          httpGet:
+            
 ---
 apiVersion: v1
 kind: Service
@@ -80,6 +83,7 @@ spec:
   - 192.168.0.0/16
   - 35.232.228.81/32
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
