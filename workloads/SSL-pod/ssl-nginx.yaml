@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssl-pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      web: ssl
+  template:
+    metadata:
+      labels:
+        web: ssl
+    spec:
+      volumes:
+      - name: ssl-certs
+        secret:
+          secretName: ssl-certs
+          items:
+          - key: tls.crt
+            path: certs/tls.crt
+          - key: tls.key
+            path: private/tls.key
+      containers:
+      - name: ssl-webserver
+        image: nginx:latest
+        ports:
+        - containerPort: 443
+        volumeMounts:
+        ## Mount certs from secret 
+        - name: ssl-certs
+          mountPath: /etc/ssl/ 
+      initContainers:
+      - name: ssl-prep
+        image: nginx:latest
+        env:
+        ## fetch the pod IP for the nginx config
+        - name: IPADDRESS
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        command: ['/bin/bash']
+        args:
+        - -c
+        - echo "server {
+            listen 443 https ssl;
+            listen [::]:443 http2 ssl;
+
+            server_name $IPADDRESS;
+
+            ssl_certificate /etc/ssl/certs/tls.crt;
+            ssl_certificate_key /etc/ssl/private/tls.key;
+            }" >>  /etc/nginx/conf.d/ssl.conf
+        - service nginx reload
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssl-pod
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+spec:
+  ports:
+  - port: 443
+  selector:
+    web: ssl
+  type: LoadBalancer
