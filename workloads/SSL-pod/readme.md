@@ -12,11 +12,11 @@ I'll be referencing this [post from Digital Ocean](https://www.digitalocean.com/
 
 We'll use openssl to generate the certs. For now, we don't need to worry about where the keys are being output to since we'll be converting them to a secret for use in the pod.
 
-> openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout selfsigned.key -out selfsigned.crt
+`openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout selfsigned.key -out selfsigned.crt`
 
 Now create a secret using these two files
 
-> kubectl create secret tls ssl-certs --key selfsigned.key --cert selfsigned.crt
+`kubectl create secret tls ssl-certs --key selfsigned.key --cert selfsigned.crt`
 
 ## Configure the container for SSL
 
