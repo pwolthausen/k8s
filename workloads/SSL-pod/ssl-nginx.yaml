@@ -23,7 +23,7 @@ spec:
             path: private/tls.key
       - name: nginx-config
         configMap:
-          name: nginx-config
+          name: ssl-pod-config
       containers:
       - name: ssl-webserver
         image: nginx:latest
@@ -33,27 +33,19 @@ spec:
 ## Mount certs from secret 
         - name: ssl-certs
           mountPath: /etc/ssl/
-#        - name: nginx-config
-#          mountPath: /etc/nginx/conf.d/ 
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/ 
         env:
 ## fetch the pod IP for the nginx config
         - name: IPADDRESS
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
+## Nginx conf does not read env variables, so using envsubst to fetch variable and push the server block config with the host IP
         args:
         - /bin/bash
         - -c
-        - >
-          echo "server {
-                  listen 443 http2 ssl;
-                  listen [::]:443 http2 ssl;
-                  server_name $IPADDRESS;
-                  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
-                  ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
-                  ssl_dhparam /etc/ssl/certs/dhparam.pem;
-                }" >> /etc/nginx/conf.d/ssl.conf
-        - nginx -g 'daemon off;'
+        - envsubst < /etc/nginx/conf.d/ssl.template > /etc/nginx/conf.d/ssl.conf && nginx -g 'daemon off;'
 ---
 apiVersion: v1
 kind: Service
