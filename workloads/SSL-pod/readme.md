@@ -8,6 +8,10 @@ For the purpose of this example, I will be using nginx containers.
 I also want to use SSL for traffic that will not be using a URL so I'll be generating self signed certs
 I'll be referencing this [post from Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-on-centos-7) for a few of these steps.
 
+For easy cleanup, we'll create all the resources in a new namespace:
+
+> kubectl create ns ssl-test
+
 ## Generate self signed certs
 
 We'll use openssl to generate the certs. For now, we don't need to worry about where the keys are being output to since we'll be converting them to a secret for use in the pod.
@@ -16,7 +20,7 @@ We'll use openssl to generate the certs. For now, we don't need to worry about w
 
 Now create a secret using these two files
 
-> kubectl create secret tls ssl-certs --key selfsigned.key --cert selfsigned.crt
+> kubectl create -n ssl-test secret tls ssl-certs --key selfsigned.key --cert selfsigned.crt
 
 ## Configure the container for SSL
 
@@ -31,3 +35,9 @@ Next we just need to mount the certs into the container by mounting the secret
 Make sure to set the mountPath of the secret to match the paths defined in the `server block`
 
 View the `ssl-nginx.yaml` file to see a completed example along with the internal load balancer service
+
+## Clean up
+
+To clean up, delete the namespace were the test resources were created
+
+> kubectl delete ns ssl-test

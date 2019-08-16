@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ssl-pod
+  namespace: ssl-test
 spec:
   replicas: 2
   selector:
@@ -24,6 +25,9 @@ spec:
       - name: nginx-config
         configMap:
           name: ssl-pod-config
+          items:
+          - key: ssl.template
+            path: ssl.template
       containers:
       - name: ssl-webserver
         image: nginx:latest
@@ -34,7 +38,7 @@ spec:
         - name: ssl-certs
           mountPath: /etc/ssl/
         - name: nginx-config
-          mountPath: /etc/nginx/conf.d/ 
+          mountPath: /etc/nginx/templates/ 
         env:
 ## fetch the pod IP for the nginx config
         - name: IPADDRESS
@@ -45,12 +49,13 @@ spec:
         args:
         - /bin/bash
         - -c
-        - envsubst < /etc/nginx/conf.d/ssl.template > /etc/nginx/conf.d/ssl.conf && nginx -g 'daemon off;'
+        - envsubst < /etc/nginx/templates/ssl.template > /etc/nginx/conf.d/ssl.conf && nginx -g 'daemon off;'
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: ssl-pod
+  namespace: ssl-test
   annotations:
     cloud.google.com/load-balancer-type: "Internal"
 spec:
@@ -59,3 +64,18 @@ spec:
   selector:
     web: ssl
   type: LoadBalancer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ssl-pod-config
+  namespace: ssl-test
+data:
+  ssl.template: |
+    server {
+        listen 443 http2 ssl;
+        listen [::]:443 http2 ssl;
+        server_name $IPADDRESS;
+        ssl_certificate /etc/ssl/certs/tls.crt;
+        ssl_certificate_key /etc/ssl/private/tls.key;
+    }  
