@@ -1,9 +1,10 @@
-# Testing stability of Workload Identiy
+# Testing stability of [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
 
 Using deployment manager to create, update and delete up to 4 clusters at a time to test whether wid is working correctly
+
 NOTE: because clusters use up large amounts of IP blocks, the deployment manager manifest will create a new VPC network along with a subnet and 5 secondary ranges. Make sure your project allows you to create these resources. The VPC and the resources within are isolated.
 
-Before you begin, export the following variables
+## Before you begin, export the following variables
 - GSA: name of the Google service account
 - KSA: name of the k8s service account
 - K8NS: name of the namespace to test workload identity in
@@ -33,6 +34,8 @@ Before you begin, export the following variables
 
 6. Test the workload identity of each cluster using the provided bash script
 
-7. Clean up by deleting the deployment
+## Clean Up
+
+Clean up by deleting the deployment
 
 > gcloud deployment-manager deployments delete wid-test --project $PROJECT
