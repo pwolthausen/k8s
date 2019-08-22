@@ -26,7 +26,10 @@ Before you begin, export the following variables
 
 5. Link the GSA and the KSA
 
-> cloud iam service-accounts add-iam-policy-binding --role roles/iam.workloadIdentityUser --member "serviceAccount:$PROJECT.svc.id.goog[$K8NS/$KSA]" $GSA@$PROJECT.iam.gserviceaccount.com
+> cloud iam service-accounts add-iam-policy-binding \
+  --role roles/iam.workloadIdentityUser \
+  --member "serviceAccount:$PROJECT.svc.id.goog[$K8NS/$KSA]" \
+  $GSA@$PROJECT.iam.gserviceaccount.com
 
 6. Test the workload identity of each cluster using the provided bash script
 
