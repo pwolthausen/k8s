@@ -1,0 +1,38 @@
+imports:
+- path: clusters.jinja
+- path: k8s-type.py
+
+resources:
+- name: cluster-vpc
+  type: compute.v1.network
+  properties:
+    autoCreateSubnetworks: false
+- name: cluster-subnet
+  type: compute.v1.subnetwork
+  properties:
+    network: $(ref.cluster-vpc.selfLink)
+    ipCidrRange: 192.168.0.0/24
+    region: us-central1
+    secondaryIpRanges:
+      - rangeName: pod-cidr
+        ipCidrRange: 10.128.0.0/16
+      - rangeName: service-0
+        ipCidrRange: 10.0.0.0/24
+      - rangeName: service-1
+        ipCidrRange: 10.0.1.0/24
+      - rangeName: service-2
+        ipCidrRange: 10.0.2.0/24
+      - rangeName: service-3
+        ipCidrRange: 10.0.3.0/24
+
+- name: batch-of-clusters
+  type: clusters.jinja
+  properties:
+    numberOfClusters: 4  ##Must be a number between [1-4]
+    zone: us-central1-f     ##Select a zone within us-central1 that has sufficient quota, will be same as the value exported
+    initialVersion:   ##Select a cluster version at least 1 minor version behind the current latest
+    #newVersion:
+    ksa:    ##name of the service account to use, should be same as exported value
+    k8ns:   ##namespace to use, should be the same as exported value
+    network: $(ref.cluster-vpc.selfLink)
+    subnetwork: $(ref.cluster-subnet.selfLink)
