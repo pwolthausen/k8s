@@ -40,4 +40,4 @@ View the `ssl-nginx.yaml` file to see a completed example along with the interna
 
 To clean up, delete the namespace were the test resources were created
 
-> kubectl delete ns ssl-test
+`kubectl delete ns ssl-test`
