@@ -1,4 +1,4 @@
-\imports:
+imports:
 - path: k8s-type.py
 
 resources:
@@ -26,8 +26,7 @@ resources:
       nodeConfig:
         machineType: n1-standard-1
         imageType: cos
-        initialNodeCount: 3
-        name: node-pool-{{ num }}
+      initialNodeCount: 3
       loggingService: logging.googleapis.com/kubernetes
       monitoringService: monitoring.googleapis.com/kubernetes
       addonsConfig:
