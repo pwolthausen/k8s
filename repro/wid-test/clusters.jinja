@@ -13,7 +13,7 @@ resources:
         identityNamespace: {{ env["project"] }}.svc.id.goog
       network: {{ properties["network"] }}
       subnetwork: {{ properties["subnetwork"] }}
-      intialClusterVersion: {{ properties["initialVersion"] }}
+      initialClusterVersion: {{ properties["initialVersion"] }}
       {% if properties["newVersion"] %}
       currentMasterVersion: {{ properties["newVersion"] }}
       currentNodeVersion: {{ properties["newVersion"] }}
