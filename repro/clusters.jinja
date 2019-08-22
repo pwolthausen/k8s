@@ -1,0 +1,67 @@
+\imports:
+- path: k8s-type.py
+
+resources:
+{% for num in range(properties["numberOfClusters"]) %}
+- name: cluster-{{ num }} 
+  type: gcp-types/container-v1beta1:projects.locations.clusters
+  properties:
+    parent: projects/{{ env["project"] }}/locations/{{ properties["zone"] }}
+    cluster:
+      name: cluster-{{ num }}
+      workloadIdentityConfig:
+        identityNamespace: {{ env["project"] }}.svc.id.goog
+      network: {{ properties["network"] }}
+      subnetwork: {{ properties["subnetwork"] }}
+      intialClusterVersion: {{ properties["initialVersion"] }}
+      {% if properties["newVersion"] %}
+      currentMasterVersion: {{ properties["newVersion"] }}
+      currentNodeVersion: {{ properties["newVersion"] }}
+      {% endif %}
+      ipAllocationPolicy:
+        useIpAliases: true
+        createSubnetwork: false
+        clusterSecondaryRangeName: pod-cidr
+        servicesSecondaryRangeName: service-{{ num }}
+      nodeConfig:
+        machineType: n1-standard-1
+        imageType: cos
+        initialNodeCount: 3
+        name: node-pool-{{ num }}
+      loggingService: logging.googleapis.com/kubernetes
+      monitoringService: monitoring.googleapis.com/kubernetes
+      addonsConfig:
+        kubernetesDashboard:
+          disabled: true
+
+##Create a type provider to allow deployment manager to create k8s resources
+- name: k8s-cluster-{{ num }}
+  type: k8s-type.py
+  properties:
+    endpoint: $(ref.cluster-{{ num }}.endpoint) 
+    cluster: cluster-{{ num }}
+
+##Create the namespace and service account to test in the cluster
+- name: namespace-{{ num }}
+  type: {{ env['project'] }}/cluster-{{ num }}-v1:/api/v1/namespaces
+  properties:
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: {{ properties["k8ns"] }}
+  metadata:
+    dependsOn:
+    - cluster-{{ num }}-v1
+- name: service-account-{{ num }}
+  type: {{ env['project'] }}/cluster-{{ num  }}-v1:/api/v1/namespaces/{namespace}/serviceaccounts
+  properties:
+    apiVersion: v1
+    kind: ServiceAccount
+    namespace: {{ properties["k8ns"] }}
+    metadata:
+      name: {{ properties["ksa"] }}
+      namespace: {{ properties["k8ns"] }}
+  metadata:
+    dependsOn:
+    - namespace-{{ num }}
+{% endfor %}
