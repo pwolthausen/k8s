@@ -27,7 +27,7 @@ NOTE: because clusters use up large amounts of IP blocks, the deployment manager
 
 5. Link the GSA and the KSA
 
-> cloud iam service-accounts add-iam-policy-binding \
+> gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT.svc.id.goog[$K8NS/$KSA]" \
   $GSA@$PROJECT.iam.gserviceaccount.com

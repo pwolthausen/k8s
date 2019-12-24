@@ -57,7 +57,6 @@ metadata:
   name: ssl-pod
   namespace: ssl-test
   annotations:
-    cloud.google.com/load-balancer-type: "Internal"
 spec:
   ports:
   - port: 443
@@ -73,9 +72,11 @@ metadata:
 data:
   ssl.template: |
     server {
-        listen 443 http2 ssl;
-        listen [::]:443 http2 ssl;
+        listen 443 ssl;
+        listen [::]:443 ssl;
         server_name $IPADDRESS;
+        ssl on;
         ssl_certificate /etc/ssl/certs/tls.crt;
         ssl_certificate_key /etc/ssl/private/tls.key;
+        root /usr/share/nginx/html;
     }  
