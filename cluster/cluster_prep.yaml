@@ -1,0 +1,2 @@
+- include_tasks: masters.yml
+- include_tasks: workers.yml

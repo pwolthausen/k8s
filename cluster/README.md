@@ -1,0 +1,1 @@
+1. Create SSH key pair. Copy the public key to each of the nodes to be used in the cluster. The basic method is to [create the key pair manually](), however, if you are using a cloud provider, the provider may offer built in methods to create, share and use ssh keys.
