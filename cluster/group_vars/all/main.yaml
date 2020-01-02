@@ -1,0 +1,13 @@
+---
+## Defines the master API endpoint and the pod CIDR the network mesh will use
+pod_cidr: 192.168.0.0/16 #This is the default used for calico
+k8s_endpoint: <master_external_IP>
+
+## Non root user on master node
+master_user: <user>
+
+##Choose network mesh for cluster, currently using calico
+network: calico
+network_apply_command: kubectl apply -f https://docs.projectcalico.org/v3.8/manifests/calico.yaml
+
+ansible_python_interpreter: /usr/bin/python3

@@ -1,11 +1,10 @@
 [masters]
-#one line per master node
-master-1 ansible_host={masterip}
+##ansible_port is not a required field, only add if port 22 is not used
+master ansible_host=<master_IP> ansible_port=<master_port>
+
 
 [workers]
 #one line per worker node
-worker1 ansible_host={nodeip1}
-worker2 ansible_host={nodeip2}
-
-[all:vars]
-ansible_python_interpreter=/usr/bin/python3
+##ansible_port is not a required field, only add if port 22 is not used
+worker1 ansible_host=<worker1_IP> ansible_port=<host1_port>
+worker2 ansible_host=<worker2_IP> ansible_port=<host2_port>

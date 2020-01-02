@@ -1,0 +1,5 @@
+- name: prepare masters
+  import_plybook: masters.yaml
+
+- name: prepare workers
+  import_playbook: workers.yaml
