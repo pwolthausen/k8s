@@ -1,11 +1,14 @@
-- name: prepare masters
-  import_playbook: masters.yaml
+- name: configure master node
+  hosts: master
+  become: true
+  roles:
+  - { role: master_prep, tags: ['master','node_prep']}
 
-- name: prepare workers
-  import_playbook: workers.yaml
+- name: configure worker nodes
+  hosts: workers
+  become: true
+  roles:
+  - { role: worker_prep, tags: ['worker','node_prep']}
 
-- name: initialize cluster
+- name: bootstrap cluster with kubeadm
   import_playbook: create_cluster.yaml
-
-- name: join workers
-  import_playbook: join.yaml
