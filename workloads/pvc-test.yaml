@@ -31,7 +31,7 @@ metadata:
   name: test-pvc
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 30Gi 
