@@ -1,14 +1,20 @@
-- hosts: master
+- name: make sure docker daemon is Running
+  hosts: all
+  become: True
+  systemd:
+    name: docker
+    state: started
+
+- hosts: kubeadm-test-master-01
   become: yes
   tasks:
-    - name: make sure docker daemon is Running
+    - name: make sure kubelet is Running
       systemd:
-        name: docker
+        name: kubelet
         state: started
 
     - name: initialize cluster
-      ## add --create-cluster-endpoint {{ k8s_endpoint }} if you are using an IP different from the master default NIC
-      command: kubeadm init --pod-network-cidr "{{ pod_cidr }}"
+      command: "kubeadm init --pod-network-cidr {{ pod_cidr }} --control-plane-endpoint {{ k8s_endpoint }} --certificate-key {{ cert_key }}"
 
     - name: prepare kubectl for local user
       command: "{{ item }}"
@@ -17,7 +23,7 @@
        - cp -i /etc/kubernetes/admin.conf /home/{{ master_user }}/.kube/config
        - chown {{ master_user }}:{{ master_user }} /home/{{ master_user }}/.kube/config
 
-    - name: deploy "{{ network }}"
+    - name: deploying CNI
       become: false
       become_user: "{{ master_user }}"
       command:
@@ -39,9 +45,3 @@
 
   - name: Join the node to cluster
     command: sh /tmp/join-command.sh
-
-- hosts: all
-  become: True
-  handlers:
-  - name: docker status
-    service: name=docker state=started

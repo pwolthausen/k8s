@@ -7,6 +7,11 @@ data "template_file" "cloudinit" {
   template = file("./templates/cloudinit.tpl")
 }
 
+resource "cloudca_public_ip" "nat_ip" {
+  environment_id = var.envID
+  vpc_id         = var.vpcID
+}
+
 resource "cloudca_instance" "masters" {
   count                  = var.master_count
   name                   = format("kubeadm-test-master-%02d", count.index + 1)
@@ -24,7 +29,7 @@ resource "cloudca_instance" "masters" {
 resource "cloudca_port_forwarding_rule" "masters" {
   count              = var.master_count
   environment_id     = var.envID
-  public_ip_id       = "aa8068eb-8a89-465f-8fe2-94d34952ee85"
+  public_ip_id       = cloudca_public_ip.nat_ip.id
   public_port_start  = 22 + count.index
   private_ip_id      = cloudca_instance.masters[count.index].private_ip_id
   private_port_start = 22
@@ -32,7 +37,7 @@ resource "cloudca_port_forwarding_rule" "masters" {
 }
 resource "cloudca_public_ip" "master_ep" {
   environment_id = var.envID
-  vpc_id         = "71e124eb-2349-4cbc-aeb0-4136c3f2197d"
+  vpc_id         = var.vpcID
 }
 resource "cloudca_load_balancer_rule" "master_lb" {
   environment_id = var.envID

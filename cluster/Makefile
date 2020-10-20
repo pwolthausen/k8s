@@ -1,9 +1,7 @@
 
 define app
-	$(eval key ?= '~/.ssh/id_pub')
-	$(eval TAGS ?= 'all' )
-	OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook -i hosts $(1).yaml --flush-cache --private-key $(key) -t $(TAGS)
+	OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook -i inventory.ini $(1).yaml --flush-cache
 endef
 
 k8s:
-	$(call app, full_cluster)
+	$(call app, create_cluster)
