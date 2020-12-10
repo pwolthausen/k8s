@@ -1,1 +1,6 @@
 *.tfplan
+credentials/
+.terraform/
+facts/
+/facts
+.vault_password

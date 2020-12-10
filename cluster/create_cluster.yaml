@@ -1,12 +1,13 @@
 - name: make sure docker daemon is Running
   hosts: all
   become: True
-  systemd:
-    name: docker
-    state: started
+  tasks:
+  - systemd:
+      name: docker
+      state: started
 
 - hosts: kubeadm-test-master-01
-  become: yes
+  become: True
   tasks:
     - name: make sure kubelet is Running
       systemd:
@@ -19,29 +20,33 @@
     - name: prepare kubectl for local user
       command: "{{ item }}"
       with_items:
-       - mkdir -p /home/{{ master_user }}/.kube
-       - cp -i /etc/kubernetes/admin.conf /home/{{ master_user }}/.kube/config
-       - chown {{ master_user }}:{{ master_user }} /home/{{ master_user }}/.kube/config
+       - mkdir -p /home/{{ cluster_user }}/.kube
+       - cp -i /etc/kubernetes/admin.conf /home/{{ cluster_user }}/.kube/config
+       - chown {{ cluster_user }}:{{ cluster_user }} /home/{{ cluster_user }}/.kube/config
 
     - name: deploying CNI
       become: false
-      become_user: "{{ master_user }}"
       command:
         cmd: "{{ network_apply_command }}"
 
     - name: create join command
-      command: kubeadm token create --print-join-command
-      register: join_command
-      become: True
+      shell: "/bin/kubeadm token create --print-join-command"
+      register: join_token
 
-    - name: Copy join command to local file
-      local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+    - set_fact:
+        join_command: "{{ join_token.stdout }}"
+
+- hosts:
+    - kubeadm-test-master-02
+    - kubeadm-test-master-03
+  become: True
+  tasks:
+    - name: join control plane
+      command: "{{ hostvars['kubeadm-test-master-01']['join_command'] }} --control-plane --certificate-key {{ cert_key }}"
+  when: 
 
 - hosts: workers
   become: True
   tasks:
-  - name: Copy the join command to server location
-    copy: src=join-command dest=/tmp/join-command.sh mode=0777
-
   - name: Join the node to cluster
-    command: sh /tmp/join-command.sh
+    command: "{{ hostvars['kubeadm-test-master-01']['join_command'] }}"

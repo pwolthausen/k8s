@@ -69,7 +69,7 @@ resource "cloudca_instance" "workers" {
 resource "cloudca_port_forwarding_rule" "workers" {
   count              = var.worker_count
   environment_id     = var.envID
-  public_ip_id       = "aa8068eb-8a89-465f-8fe2-94d34952ee85"
+  public_ip_id       = cloudca_public_ip.nat_ip.id
   public_port_start  = 25 + count.index
   private_ip_id      = cloudca_instance.workers[count.index].private_ip_id
   private_port_start = 22
