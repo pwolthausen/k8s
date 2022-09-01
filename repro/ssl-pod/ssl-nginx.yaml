@@ -1,3 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ssl-test
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,11 +39,11 @@ spec:
         ports:
         - containerPort: 443
         volumeMounts:
-## Mount certs from secret 
+## Mount certs from secret
         - name: ssl-certs
           mountPath: /etc/ssl/
         - name: nginx-config
-          mountPath: /etc/nginx/templates/ 
+          mountPath: /etc/nginx/templates/
         env:
 ## fetch the pod IP for the nginx config
         - name: IPADDRESS
@@ -79,4 +84,4 @@ data:
         ssl_certificate /etc/ssl/certs/tls.crt;
         ssl_certificate_key /etc/ssl/private/tls.key;
         root /usr/share/nginx/html;
-    }  
+    }
